@@ -16,6 +16,9 @@
 # under the License.
 import os
 
+from celery.schedules import crontab
+
+
 
 def get_env_variable(var_name, default=None):
     """Get the environment variable or raise exception."""
@@ -49,10 +52,34 @@ REDIS_PORT = get_env_variable('REDIS_PORT')
 
 class CeleryConfig(object):
     BROKER_URL = 'redis://%s:%s/0' % (REDIS_HOST, REDIS_PORT)
-    CELERY_IMPORTS = ('superset.sql_lab', )
+    CELERY_IMPORTS = (
+        'superset.sql_lab',
+        'superset.tasks',
+    )
     CELERY_RESULT_BACKEND = 'redis://%s:%s/1' % (REDIS_HOST, REDIS_PORT)
-    CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
     CELERY_TASK_PROTOCOL = 1
+    CELERYD_LOG_LEVEL = 'DEBUG'
+    CELERYD_PREFETCH_MULTIPLIER = 10
+    CELERY_ACKS_LATE = True
+    CELERY_ANNOTATIONS = {
+        'sql_lab.get_sql_results': {
+            'rate_limit': '100/s',
+        },
+        'email_reports.send': {
+            'rate_limit': '1/s',
+            'time_limit': 120,
+            'soft_time_limit': 150,
+            'ignore_result': True,
+        },
+    }
+    CELERYBEAT_SCHEDULE = {
+        'email_reports.schedule_hourly': {
+            'task': 'email_reports.schedule_hourly',
+            'schedule': crontab(minute=1, hour='*'),
+        },
+    }
 
 
 CELERY_CONFIG = CeleryConfig
+
+ENABLE_SCHEDULED_EMAIL_REPORTS = True

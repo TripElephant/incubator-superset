@@ -41,6 +41,13 @@ RUN apt-get install -y vim less postgresql-client redis-tools
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
     && apt-get install -y nodejs
 
+RUN apt-get install -y firefox-esr
+
+RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz
+RUN tar -x geckodriver -zf geckodriver-v0.24.0-linux64.tar.gz -O > /usr/bin/geckodriver
+RUN chmod +x /usr/bin/geckodriver
+RUN rm geckodriver-v0.24.0-linux64.tar.gz
+
 WORKDIR /home/superset
 
 COPY requirements.txt .
