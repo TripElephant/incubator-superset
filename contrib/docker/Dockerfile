@@ -22,6 +22,10 @@ RUN useradd --user-group --create-home --no-log-init --shell /bin/bash superset
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
+# Add Google Chrome repository
+RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN echo "deb [arch=amd64]  http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+
 RUN apt-get update -y
 
 # Install dependencies to fix `curl https support error` and `elaying package configuration warning`
@@ -41,12 +45,13 @@ RUN apt-get install -y vim less postgresql-client redis-tools
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
     && apt-get install -y nodejs
 
-RUN apt-get install -y firefox-esr
-
-RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz
-RUN tar -x geckodriver -zf geckodriver-v0.24.0-linux64.tar.gz -O > /usr/bin/geckodriver
-RUN chmod +x /usr/bin/geckodriver
-RUN rm geckodriver-v0.24.0-linux64.tar.gz
+# Provision headless browser for email reports
+RUN apt-get -y install google-chrome-stable
+RUN wget https://chromedriver.storage.googleapis.com/77.0.3865.40/chromedriver_linux64.zip
+RUN unzip chromedriver_linux64.zip
+RUN mv chromedriver /usr/bin/chromedriver
+RUN chmod +x /usr/bin/chromedriver
+RUN rm chromedriver_linux64.zip
 
 WORKDIR /home/superset
 
