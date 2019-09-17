@@ -34,6 +34,7 @@ elif [ "$SUPERSET_ENV" = "production" ]; then
         --timeout 60 \
         --limit-request-line 0 \
         --limit-request-field_size 0 \
+        -k gevent \
         superset:app
 else
     superset --help
