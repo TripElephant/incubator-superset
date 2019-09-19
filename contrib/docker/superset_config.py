@@ -19,7 +19,6 @@ import os
 from celery.schedules import crontab
 
 
-
 def get_env_variable(var_name, default=None):
     """Get the environment variable or raise exception."""
     try:
@@ -28,69 +27,67 @@ def get_env_variable(var_name, default=None):
         if default is not None:
             return default
         else:
-            error_msg = 'The environment variable {} was missing, abort...'\
-                        .format(var_name)
+            error_msg = "The environment variable {} was missing, abort...".format(
+                var_name
+            )
             raise EnvironmentError(error_msg)
 
 
-POSTGRES_USER = get_env_variable('POSTGRES_USER')
-POSTGRES_PASSWORD = get_env_variable('POSTGRES_PASSWORD')
-POSTGRES_HOST = get_env_variable('POSTGRES_HOST')
-POSTGRES_PORT = get_env_variable('POSTGRES_PORT')
-POSTGRES_DB = get_env_variable('POSTGRES_DB')
+POSTGRES_USER = get_env_variable("POSTGRES_USER")
+POSTGRES_PASSWORD = get_env_variable("POSTGRES_PASSWORD")
+POSTGRES_HOST = get_env_variable("POSTGRES_HOST")
+POSTGRES_PORT = get_env_variable("POSTGRES_PORT")
+POSTGRES_DB = get_env_variable("POSTGRES_DB")
 
 # The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = 'postgresql://%s:%s@%s:%s/%s' % (POSTGRES_USER,
-                                                           POSTGRES_PASSWORD,
-                                                           POSTGRES_HOST,
-                                                           POSTGRES_PORT,
-                                                           POSTGRES_DB)
+SQLALCHEMY_DATABASE_URI = "postgresql://%s:%s@%s:%s/%s" % (
+    POSTGRES_USER,
+    POSTGRES_PASSWORD,
+    POSTGRES_HOST,
+    POSTGRES_PORT,
+    POSTGRES_DB,
+)
 
-REDIS_HOST = get_env_variable('REDIS_HOST')
-REDIS_PORT = get_env_variable('REDIS_PORT')
+REDIS_HOST = get_env_variable("REDIS_HOST")
+REDIS_PORT = get_env_variable("REDIS_PORT")
 
 
 class CeleryConfig(object):
-    BROKER_URL = 'redis://%s:%s/0' % (REDIS_HOST, REDIS_PORT)
-    CELERY_IMPORTS = (
-        'superset.sql_lab',
-        'superset.tasks',
-    )
-    CELERY_RESULT_BACKEND = 'redis://%s:%s/1' % (REDIS_HOST, REDIS_PORT)
+    BROKER_URL = "redis://%s:%s/0" % (REDIS_HOST, REDIS_PORT)
+    CELERY_IMPORTS = ("superset.sql_lab", "superset.tasks")
+    CELERY_RESULT_BACKEND = "redis://%s:%s/1" % (REDIS_HOST, REDIS_PORT)
     CELERY_TASK_PROTOCOL = 1
-    CELERYD_LOG_LEVEL = 'DEBUG'
+    CELERYD_LOG_LEVEL = "DEBUG"
     CELERYD_PREFETCH_MULTIPLIER = 10
     CELERY_ACKS_LATE = True
     CELERY_ANNOTATIONS = {
-        'sql_lab.get_sql_results': {
-            'rate_limit': '100/s',
-        },
-        'email_reports.send': {
-            'rate_limit': '1/s',
-            'time_limit': 120,
-            'soft_time_limit': 150,
-            'ignore_result': True,
+        "sql_lab.get_sql_results": {"rate_limit": "100/s"},
+        "email_reports.send": {
+            "rate_limit": "1/s",
+            "time_limit": 120,
+            "soft_time_limit": 150,
+            "ignore_result": True,
         },
     }
     CELERYBEAT_SCHEDULE = {
-        'email_reports.schedule_hourly': {
-            'task': 'email_reports.schedule_hourly',
-            'schedule': crontab(minute=1, hour='*'),
-        },
+        "email_reports.schedule_hourly": {
+            "task": "email_reports.schedule_hourly",
+            "schedule": crontab(minute=1, hour="*"),
+        }
     }
 
 
 CELERY_CONFIG = CeleryConfig
+SECRET_KEY = ""
 
 EMAIL_NOTIFICATIONS = True
-EMAIL_REPORTS_WEBDRIVER = "chrome"
 SMTP_HOST = "smtp.sendgrid.net"
 SMTP_USER = "apikey"
 SMTP_PASSWORD = ""
 SMTP_MAIL_FROM = ""
+
 ENABLE_SCHEDULED_EMAIL_REPORTS = True
+WEBDRIVER_BASEURL = "http://0.0.0.0:8088/"
 EMAIL_REPORT_FROM_ADDRESS = ""
 EMAIL_REPORT_BCC_ADDRESS = ""
-WEBDRIVER_BASEURL = "http://0.0.0.0:8088/"
-
-SECRET_KEY = ''
+EMAIL_REPORTS_WEBDRIVER = "chrome"
