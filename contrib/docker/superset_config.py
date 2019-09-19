@@ -17,6 +17,7 @@
 import os
 
 from celery.schedules import crontab
+from werkzeug.contrib.cache import RedisCache
 
 
 def get_env_variable(var_name, default=None):
