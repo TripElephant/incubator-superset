@@ -78,6 +78,10 @@ class CeleryConfig(object):
 
 
 CELERY_CONFIG = CeleryConfig
+RESULTS_BACKEND = RedisCache(
+    host=REDIS_HOST, port=REDIS_PORT, key_prefix="superset_results"
+)
+
 SECRET_KEY = ""
 
 EMAIL_NOTIFICATIONS = True
